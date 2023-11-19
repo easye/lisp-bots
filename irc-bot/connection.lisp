@@ -22,6 +22,8 @@
    (thread :initarg :thread
            :initform nil
            :accessor thread)
+   (remaining-joins :initform nil
+                    :accessor remaining-joins)
    (nick-retry-count :initarg :nick-retry-count
                      :initform nil
                      :accessor nick-retry-count)
@@ -57,7 +59,7 @@
 
 (defun wait-on-fd (fd)
   (handler-case (iomux:wait-until-fd-ready
-                 fd :input *ping-timeout*)
+                 fd :input 1)
     (iomux:poll-error (c)
       (princ c)
       (terpri)
@@ -65,15 +67,22 @@
 
 (defun start-bot-loop (connection)
   (let ((last-communication (get-universal-time))
+	(old-communication)
         (fd (sb-sys:fd-stream-fd
              (network-stream connection)))
         ping-sent)
     (loop for usable = (wait-on-fd fd)
           for time = (get-universal-time)
           do (cond (usable
-                    (setf last-communication time
+                    (setf old-communication last-communication
+		          last-communication time
                           ping-sent nil)
                     (read-messages connection))
+		   ((and (remaining-joins *bot*)
+			 (< (1+ last-communication) time))
+		    (let ((next-join (pop (remaining-joins *bot*))))
+                      (when (and next-join (< (1+ old-communication) time))
+			(join connection next-join))))
                    ((< (- time last-communication) *ping-timeout*))
                    (ping-sent
                     (write-line "restarting minion")
@@ -134,8 +143,7 @@
          (identify *bot*))
         ((search "You are now identified for"
                  (message-body message))
-         (mapcar (lambda (channel) (join (connection *bot*) channel))
-                 (channels *bot*)))))
+         (setf (remaining-joins *bot*) (channels *bot*)))))
 
 (defun ghost (bot)
   (with-slots (connection nickname password) bot

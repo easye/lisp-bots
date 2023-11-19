@@ -1,8 +1,10 @@
 #!/bin/sh
 
-export SBCL_HOME=~/sbcl/contrib/
+export LIBRARY_PATH=$HOME/lfp/lib
+export CPATH=$HOME/lfp/include
+export LD_LIBRARY_PATH=$HOME/lfp/lib
 
-while ! sh ~/sbcl/run-sbcl.sh --dynamic-space-size 1024  \
+while ! sbcl --dynamic-space-size 1024  \
     --lose-on-corruption \
     --disable-ldb \
     --no-sysinit \

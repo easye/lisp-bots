@@ -23,12 +23,14 @@
 (defun match-prefix (prefix &optional (separator "/"))
   (let ((regex
           (ppcre:create-scanner
-           `(:sequence :start-anchor ,(string-right-trim separator prefix)
-                       (:greedy-repetition
-                        0 1
-                        (:register
-                         (:sequence ,separator
-                                    (:greedy-repetition 0 nil :everything))))
-                       :end-anchor))))
+	   (if separator
+	       `(:sequence :start-anchor ,(string-right-trim separator prefix)
+			   (:greedy-repetition
+			    0 1
+			    (:register
+			     (:sequence ,separator
+					(:greedy-repetition 0 nil :everything))))
+			   :end-anchor)
+	     `(:sequence :start-anchor ,(string-right-trim separator prefix))))))
     (lambda (x)
       (ppcre:scan regex (script-name x)))))

@@ -55,7 +55,7 @@
 (defvar *meme-links* nil) ; whether to link to meme IRC logs, probably
 			  ; only useful for freenode's lisppaste
 
-(defvar *irc-network-name* "Freenode") ; the name of the IRC network
+(defvar *irc-network-name* "Libera") ; the name of the IRC network
                                         ; lisppaste is running on; can
                                         ; be ignored when not running
                                         ; with an IRC connection
@@ -195,7 +195,7 @@
 (defparameter *show-component-url* "/system-server/show/")
 
 (defvar *default-nickname* "devpaste")
-(defvar *default-irc-server* "chat.freenode.net")
+(defvar *default-irc-server* "irc.libera.chat")
 (defvar *default-irc-server-port* 6667)
 (defvar *default-channel* "#lisppaste")
 
